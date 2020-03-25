@@ -2,6 +2,10 @@ from selenium import webdriver
 from selenium.webdriver.common.keys import Keys
 import time
 
+from trataDados import *
+
+matriz_infos = []
+
 def comercio():
     firefox = webdriver.Firefox()
     firefox.get('http://www2.aneel.gov.br/aplicacoes/Agente_Comercializador/Default_Action_Agente_Comercializador.cfm')
@@ -25,24 +29,24 @@ def comercio():
 
         empresa = firefox.find_element_by_xpath(path_empresa).text
         endereco = firefox.find_element_by_xpath(path_endereco).text
+
         telefone_fax_email = firefox.find_element_by_xpath(path_TelefoneFaxEmail).text
+        telefone = telefone_fax_email.split('\n')[0]
+        fax = telefone_fax_email.split('\n')[1]
+        email = telefone_fax_email.split('\n')[2]
+
         sede = firefox.find_element_by_xpath(path_sede).text
         representantes = firefox.find_element_by_xpath(path_representantes).text
         cgccnpj = firefox.find_element_by_xpath(path_CgcCnpj).text
         registroMAE = firefox.find_element_by_xpath(path_registroMAE).text
         processo = firefox.find_element_by_xpath(path_processo).text
-
-        print (empresa)
-        print (endereco)
-        print (telefone_fax_email)
-        print (sede)
-        print (representantes)
-        print (cgccnpj)
-        print (registroMAE)
-        print (processo)
-        print ('-------')
+        
+        info = [empresa, endereco, telefone, fax, email, sede, representantes, cgccnpj, registroMAE, processo]
+        
+        info = list(map(limpa,info))
 
 
+        matriz_infos.append(info)
 
 if __name__ == "__main__":
     comercio()
