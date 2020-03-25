@@ -2,6 +2,10 @@ from selenium import webdriver
 from selenium.webdriver.common.keys import Keys
 import time
 
+from trataDados import *
+
+matriz_infos = []
+
 def comercio():
     firefox = webdriver.Firefox()
     firefox.get('http://www2.aneel.gov.br/aplicacoes/Agente_Comercializador/Default_Action_Agente_Comercializador.cfm')
@@ -12,7 +16,7 @@ def comercio():
     empresas_bichadas = []
     empresas = []
 
-    for id in range(1, 20):
+    for id in range(1, quantidade_empresas+1):
         try:
             firefox.find_element_by_xpath('/html/body/form/center/table/tbody/tr[2]/td/select/option['+str(id)+']').click()
             firefox.find_element_by_xpath(path_botao_pesquisar).click()
@@ -29,7 +33,12 @@ def comercio():
 
             empresa = firefox.find_element_by_xpath(path_empresa).text
             endereco = firefox.find_element_by_xpath(path_endereco).text
+
             telefone_fax_email = firefox.find_element_by_xpath(path_TelefoneFaxEmail).text
+            telefone = telefone_fax_email.split('\n')[0]
+            fax = telefone_fax_email.split('\n')[1]
+            email = telefone_fax_email.split('\n')[2]
+
             sede = firefox.find_element_by_xpath(path_sede).text
             representantes = firefox.find_element_by_xpath(path_representantes).text
             cgccnpj = firefox.find_element_by_xpath(path_CgcCnpj).text
@@ -52,7 +61,12 @@ def comercio():
 
                 empresa = firefox.find_element_by_xpath(path_empresa).text
                 endereco = firefox.find_element_by_xpath(path_endereco).text
+                
                 telefone_fax_email = firefox.find_element_by_xpath(path_TelefoneFaxEmail).text
+                telefone = telefone_fax_email.split('\n')[0]
+                fax = telefone_fax_email.split('\n')[1]
+                email = telefone_fax_email.split('\n')[2]
+                
                 sede = firefox.find_element_by_xpath(path_sede).text
                 representantes = 'Representantes: '
                 cgccnpj = firefox.find_element_by_xpath(path_CgcCnpj).text
@@ -64,12 +78,19 @@ def comercio():
                     empresas_bichadas.append(empresa)
                 except:
                     empresas_bichadas.append(id)
-        empresa = [empresa, endereco, telefone_fax_email, sede, representantes, cgccnpj, registroMAE, processo]
-        empresas.append(empresa)
-        print (empresa)
-    
 
+        info = [empresa, endereco, telefone, fax, email, sede, representantes, cgccnpj, registroMAE, processo]
+        
+        info = list(map(limpa,info))
 
+        matriz_infos.append(info)
+        print(matriz_infos)
+
+matriz = comercio()
+
+comercializadoras = pd.DataFrame(matriz, columns=['Empresa', 'Endereço', 'Telefone', 'Fax', 'E-Mail', 'Sede', 'Representante(s)', 'CGC/CNPJ', 'Registro no MAE', 'Processo'])
+
+comercializadoras.to_csv(r'/home/comercializadoras.csv')
 
 if __name__ == "__main__":
     comercio()
